@@ -1,0 +1,9 @@
+## Interface: 11505
+## Title: BindPad
+## Version: @project-version@
+## Author: Nymann
+## Notes: BindPad - Keybinding UI for Items, Spells and Macros. Drag anything into BindPad's slot and click it to bind a key.
+## IconTexture: 134394
+## SavedVariables: BindPadVars
+
+BindPad-Cata.xml

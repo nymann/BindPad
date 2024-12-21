@@ -18,6 +18,7 @@ end
 
 local isRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local isCata = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local NUM_MACRO_ICONS_SHOWN = 20
 local NUM_ICONS_PER_ROW = 5
@@ -96,12 +97,29 @@ function BindPadCore.GetSpecializationInfo(specIndex)
             local _, name, _, icon = GetTalentTabInfo(i, false, false, specIndex)
             return name, icon
         end
+    elseif isClassic then
+        local activeName
+        local activeIcon
+        local activeSpent = 0
+        for i = 1, GetNumTalentTabs() do
+            local id, name, _, iconTexture, pointsSpent = GetTalentTabInfo(i, false, false, specIndex)
+            if pointsSpent > activeSpent then
+                activeName = name
+                activeIcon = iconTexture
+                activeSpent = pointsSpent
+            end
+        end
+        if activeName == nil then
+            return "No active spec"
+        end
+        return activeName, activeIcon
     else
         local activeName
         local activeIcon
         local activeSpent = 0
         for i = 1, GetNumTalentTabs() do
             local name, icon, spent = GetTalentTabInfo(i, false, false, specIndex)
+            print(i, "name=", name, "icon=", icon, "spent=", spent, "fileName=", fileName)
             if spent > activeSpent then
                 activeName = name
                 activeIcon = icon
@@ -1472,9 +1490,11 @@ function BindPadCore.PickupSpellBookItemHook(slot, bookType)
     BindPadCore.PickupSpellBookItem_bookType = bookType
 end
 
-if isCata then
-    hooksecurefunc("PickupSpellBookItem", BindPadCore.PickupSpellBookItemHook)
-else
+if PickupSpellBookItem then
+    hooksecurefunc("PickupSpellBookItem", function(...)
+        BindPadCore.PickupSpellBookItemHook(...)
+    end)
+elseif C_SpellBook and C_SpellBook.PickupSpellBookItem then
     hooksecurefunc(C_SpellBook, "PickupSpellBookItem", BindPadCore.PickupSpellBookItemHook)
 end
 
